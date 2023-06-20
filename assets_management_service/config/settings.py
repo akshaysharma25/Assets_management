@@ -11,13 +11,13 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import sys
+from corsheaders.defaults import default_headers, default_methods
+from utils.environment_configs import EnvironmentConfigs
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure--f%(_u)*2u_clq-1=^y@h7f1bf821chfs!q5ilkdyp%3+=me%h'
@@ -25,18 +25,29 @@ SECRET_KEY = 'django-insecure--f%(_u)*2u_clq-1=^y@h7f1bf821chfs!q5ilkdyp%3+=me%h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
-
 INSTALLED_APPS = [
+
+    # Default
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Packages
+    'rest_framework',
+    'django_filters',
+    'corsheaders',
+
+    # Apps
+    'assets',
+    'purchase',
+    'inventory',
+
 ]
 
 MIDDLEWARE = [
@@ -69,20 +80,38 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+if EnvironmentConfigs.db == 'PostgreSQL':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': EnvironmentConfigs.dbName,
+            'USER': EnvironmentConfigs.dbUser,
+            'PASSWORD': EnvironmentConfigs.dbPassword,
+            'HOST': EnvironmentConfigs.dbHost,
+            'PORT': EnvironmentConfigs.dbPort,
+        }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
     }
-}
+elif EnvironmentConfigs.db == 'MySQL':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': EnvironmentConfigs.dbName,
+            'USER': EnvironmentConfigs.dbUser,
+            'PASSWORD': EnvironmentConfigs.dbPassword,
+            'HOST': EnvironmentConfigs.dbHost,
+            'PORT': EnvironmentConfigs.dbPort,
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -99,10 +128,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -111,13 +136,72 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CORS Setting
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    "https://learn.techademycampus.com",
+    "https://uat.techademycampus.com",
+    "http://myaksdev-ing.centralindia.cloudapp.azure.com",
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_HEADERS = list(default_headers) + []
+CORS_ALLOW_METHODS = list(default_methods) + []
+
+# Logger Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        # 'console': {
+        #     'format': '%(asctime)s %(levelname)-8s %(name)-30s %(filename)-30s %(funcName)-30s %(lineno)-4d %(message)s',
+        # },
+        'file': {
+            'format': '%(asctime)s %(levelname)-8s %(filename)-30s %(funcName)-30s %(lineno)-4d %(message)s',
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            # 'formatter': 'console'
+        },
+        'service_handler_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 20,
+            'formatter': 'file',
+            'filename': 'service.log'
+        },
+        'trace_handler_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 20,
+            'formatter': 'file',
+            'filename': 'trace.log'
+        }
+    },
+    'loggers': {
+        'course_logger': {
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+            'handlers': [
+                # 'console',
+                'service_handler_file'
+            ]
+        },
+        'trace_logger': {
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+            'handlers': [
+                # 'console',
+                'trace_handler_file'
+            ]
+        }
+    }
+}
