@@ -22,8 +22,8 @@ urlpatterns = [
 
     # Apps
     path('api/v1/', include('assets.urls')),
-    path('api/v1/', include('purchase.urls')),
-    path('api/v1/', include('inventory.urls')),
+    # path('api/v1/', include('purchase.urls')),
+    # path('api/v1/', include('inventory.urls')),
 
     # Swagger
 ]
