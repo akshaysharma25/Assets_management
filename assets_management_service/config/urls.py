@@ -21,9 +21,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Apps
-    path('api/v1/assets/', include('assets.urls')),
-    path('api/v1/purchase/', include('purchase.urls')),
-    path('api/v1/inventory/', include('inventory.urls')),
+    path('api/v1/', include('assets.urls')),
+    path('api/v1/', include('purchase.urls')),
+    path('api/v1/', include('inventory.urls')),
 
     # Swagger
 ]
