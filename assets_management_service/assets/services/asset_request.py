@@ -72,7 +72,7 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def delete_asset_request(self, params):
         try:
-            request_id = params.data['request_id']
+            request_id = params.query_params.get['request_id']
             queryset = AssetRequestModel.objects.filter(asset_request_id=request_id).update(
                 deleted_on=timezone.now(),
                 is_deleted=1,
@@ -95,8 +95,8 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def get_asset_by_request_id(self, params):
         try:
-            request_id = params.data['request_id']
-            queryset = AssetRequestModel.objects.filter(asset_request_id=request_id, is_deleted=False)
+            request_id_params = params.query_params.get('request_id')
+            queryset = AssetRequestModel.objects.filter(asset_request_id=request_id_params, is_deleted=False)
             serializer = AssetRequestSerializer(queryset, many=True).data
             return Response(Util.get_fetch_message(self, message=RFS, data=serializer))
         except Exception as e:
@@ -125,32 +125,6 @@ class AssetServices(ViewSet, ModelViewSet):
             print(str(e))
             service_logger.error(str(e))
             return Response(Util.get_exception_message(self, exception=e))
-
-    # def create_asset_type(self, params):
-    #     try:
-    #         asset_type_params = params.data['asset_type']
-    #         queryset=AssetRequestModel.objects.create(
-    #             asset_type=asset_type_params
-    #         )
-    #         return Response(Util.get_created_message(self, message=RCS))
-    #     except Exception as e:
-    #         print(str(e))
-    #         service_logger.error(str(e))
-    #         return Response(Util.get_exception_message(self, exception=e))
-
-    # def create_asset_name(self, params):
-    #     try:
-    #         asset_type_params = params.data['asset_type']
-    #         asset_type_params = params.data['asset_type']
-    #         asset_type_params = params.data['asset_type']
-    #         queryset=AssetRequestModel.objects.create(
-    #             asset_type=asset_type_params
-    #         )
-    #         return Response(Util.get_created_message(self, message=RCS))
-    #     except Exception as e:
-    #         print(str(e))
-    #         service_logger.error(str(e))
-    #         return Response(Util.get_exception_message(self, exception=e))
 
     def assets_dropdown(self, params):
         try:
@@ -197,8 +171,6 @@ class AssetServices(ViewSet, ModelViewSet):
         except Exception as e:
             print(str(e))
             return Response(Util.get_exception_message(self, exception=e))
-
-
 
     # ==================== SERVICE METHODS END ==================
 
