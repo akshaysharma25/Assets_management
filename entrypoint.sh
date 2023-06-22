@@ -4,7 +4,7 @@ ROOT=/home/ubuntu/asset/courseservice
 
 python manage.py makemigrations
 python manage.py migrate
-python manage.py loaddata course/fixtures/status.json
+python manage.py loaddata assets/fixtures/status.json
 
 mkdir /home/ubuntu/run
 GUNICORN=/usr/local/bin/gunicorn
