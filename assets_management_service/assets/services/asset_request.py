@@ -138,6 +138,34 @@ class AssetServices(ViewSet, ModelViewSet):
             service_logger.error(str(e))
             return Response(Util.get_exception_message(self, exception=e))
 
+    def create_asset_type(self, params):
+        try:
+            asset_type_params = params.data['asset_type']
+            queryset = AssetTypeModel.objects.create(asset_type=asset_type_params)
+            queryset.save()
+            return Response(Util.get_created_message(self, message=ASS))
+        except Exception as e:
+            print(str(e))
+            service_logger.error(str(e))
+            return Response(Util.get_exception_message(self, exception=e))
+
+    def create_asset_name(self, params):
+        try:
+            asset_type_id_params = params.data['asset_type_id']
+            asset_name_params = params.data['asset_name']
+            description_params = params.data['description']
+            queryset = AssetNameModel.objects.create(
+                asset_type_id=asset_type_id_params,
+                asset_name=asset_name_params,
+                description=description_params
+            )
+            queryset.save()
+            return Response(Util.get_created_message(self, message=ASS))
+        except Exception as e:
+            print(str(e))
+            service_logger.error(str(e))
+            return Response(Util.get_exception_message(self, exception=e))
+
     def renew_asset_request(self, params):
         try:
             request_id_params = params.data['asset_request_id']
