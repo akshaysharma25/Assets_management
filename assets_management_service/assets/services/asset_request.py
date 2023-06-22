@@ -1,5 +1,6 @@
 from rest_framework.viewsets import ViewSet
 from rest_framework.viewsets import ModelViewSet
+from assets.permissions.permission import PermissionChecker
 from assets.utils.response.constants import *
 from assets.utils.response.base_response import *
 from django.db.models import Q
@@ -14,6 +15,7 @@ from assets.serializers.asset_type_serializer import AssetTypeSerializer
 
 
 class AssetServices(ViewSet, ModelViewSet):
+    permission_classes = [PermissionChecker]
 
     # ==================== CONSTRUCTOR STARTS ===================
     def __init__(self, *args, **kwargs):
