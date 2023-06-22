@@ -1,0 +1,21 @@
+assetmanagement:
+
+ service:
+  type: ClusterIP
+  port: 8000
+
+ image:
+  repository: b2aprodreg.azurecr.io/assetmanagementimage
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1"
+
+ config:
+  db: MySQL
+  dbHost: b2a-prod.mysql.database.azure.com
+  dbUser: mysqladmin
+  dbPassword: Pa$$@word1
+  dbPort: 3306
+  dbName: assetmanagement_db
+  issuer_url: https://lx-platform-b2a.azurewebsites.net
+

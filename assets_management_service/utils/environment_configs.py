@@ -1,7 +1,7 @@
 import configparser
 
 configs = configparser.ConfigParser()
-configs.read('utils/config.ini')
+configs.read('config.ini')
 configs.sections()
 
 
