@@ -1,3 +1,8 @@
+RCS = "Request Created Successfully"
+COCS = "Course Created Successfully"
+DCS = "Department Created Successfully"
+FCS = "Faculty Created Successfully"
+
 EX = "Exception"
 RNF = "Record Not Found"
 RDE = "Record Doesn't Exist"

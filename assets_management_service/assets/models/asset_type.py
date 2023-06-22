@@ -3,7 +3,7 @@ from assets.models.base import BaseModel
 
 
 class AssetTypeModel(BaseModel):
-    asset_type = models.CharField(max_length=45, null=True, blank=False)
+    asset_type = models.CharField(max_length=45, null=True, blank=False, unique=True)
 
 
 class AssetNameModel(BaseModel):
