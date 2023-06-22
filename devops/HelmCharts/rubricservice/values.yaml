@@ -1,0 +1,21 @@
+assetmanagement:
+
+ service:
+  type: ClusterIP
+  port: 8000
+
+ image:
+  repository: devregb2a.azurecr.io/assetmanagementimage
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1"
+
+ config:
+  db: PostgreSQL
+  dbHost: b2-stage.postgres.database.azure.com
+  dbUser: sqladmin
+  dbPassword: Pass@word1
+  dbPort: 5432
+  dbName: assetmanagement_db
+  issuer_url: https://lx-platform-b2a.azurewebsites.net
+

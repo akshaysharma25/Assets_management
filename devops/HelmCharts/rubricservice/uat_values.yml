@@ -1,0 +1,32 @@
+assetmanagement:
+
+ service:
+  type: ClusterIP
+  port: 8000
+
+ image:
+  repository: devregb2a.azurecr.io/assetmanagementimage
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1"
+
+ config:
+  db: PostgreSQL
+  dbHost: b2a-uat.postgres.database.azure.com
+  dbUser: sqladmin
+  dbPassword: Pa$$@word1
+  dbPort: 5432
+  dbName: assetmanagement_db
+  issuer_url: https://uatidp.techademycampus.com
+
+ AZURE_BLOB:
+  azure_account_name: irisb2auatdatacontainer
+  azure_account_key: TN/Ury4LeBrC5fOI8Li1Jevso0agELC08Fj9+K5AduPP3ckG8c67yLfGO6rIXxvQmGzSsVrhWNdo+AStdLqU+Q==
+  azure_container: gslabtest
+
+ EMAIL_SETTINGS:
+  email_host: smtp.office365.com
+  email_port: 587
+  email_host_user: panther@iiht.com
+  email_host_password: Foc28795
+  default_from_email: panther@iiht.com

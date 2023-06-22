@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: assetmanagement
+data:
+
+  # file-like keys
+  config.ini: |
+    [DATABASE]
+    db = {{ .Values.assetmanagement.config.db }}
+    dbName = {{ .Values.assetmanagement.config.dbName }}
+    dbHost = {{ .Values.assetmanagement.config.dbHost }}
+    dbPort = {{ .Values.assetmanagement.config.dbPort }}
+    dbUser = {{ .Values.assetmanagement.config.dbUser }}
+    dbPassword = {{ .Values.assetmanagement.config.dbPassword }}
+    [IDP]
+    issuer_url =  {{ .Values.assetmanagement.config.issuer_url }}
