@@ -146,7 +146,9 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "https://learn.techademycampus.com",
     "https://uat.techademycampus.com",
-    "http://myaksdev-ing.centralindia.cloudapp.azure.com",
+    "https://learn.techademycampus.com",
+    "https://stage.techademycampus.com",
+    "https://dev.techademycampus.com",
     "http://localhost:3000",
 ]
 
