@@ -7,6 +7,7 @@ from django.db.models import Q
 from django_filters.utils import timezone
 from assets.utils.logger import service_logger
 from assets.models.assets import AssetRequestModel
+from assets.models.return_assets import ReturnAssetsModel
 from assets.utils.response.util import Util
 import random
 from assets.serializers.asset_request_serializer import AssetRequestSerializer
@@ -73,7 +74,7 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def delete_asset_request(self, params):
         try:
-            request_id = params.data['request_id']
+            request_id = params.query_params.get['request_id']
             queryset = AssetRequestModel.objects.filter(asset_request_id=request_id).update(
                 deleted_on=timezone.now(),
                 is_deleted=1,
@@ -96,8 +97,8 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def get_asset_by_request_id(self, params):
         try:
-            request_id = params.data['request_id']
-            queryset = AssetRequestModel.objects.filter(asset_request_id=request_id, is_deleted=False)
+            request_id_params = params.query_params.get('request_id')
+            queryset = AssetRequestModel.objects.filter(asset_request_id=request_id_params, is_deleted=False)
             serializer = AssetRequestSerializer(queryset, many=True).data
             return Response(Util.get_fetch_message(self, message=RFS, data=serializer))
         except Exception as e:
@@ -107,10 +108,11 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def filter_api(self, params):
         try:
-            print("Hello World")
+            pass
 
         except Exception as e:
             print(str(e))
+            pass
 
     def search_api(self, params):
         try:
@@ -126,24 +128,6 @@ class AssetServices(ViewSet, ModelViewSet):
             service_logger.error(str(e))
             return Response(Util.get_exception_message(self, exception=e))
 
-    # def create_asset_type(self, params):
-    #     try:
-    #         asset_type_params = params.data['asset_type']
-    #         asset_name_params = params.data['asset_name']
-    #         description_params = params.data['description']
-    #
-    #         asset_type = AssetTypeModel.objects.create(asset_type=asset_type_params)
-    #         asset_type.save()
-    #         assets_name = AssetNameModel.objects.create(asset_type_id=4,
-    #                                                     asset_name=asset_name_params,
-    #                                                     description=description_params)
-    #         assets_name.save()
-    #         return Response(Util.get_created_message(self, message=RCS))
-    #     except Exception as e:
-    #         print(str(e))
-    #         service_logger.error(str(e))
-    #         return Response(Util.get_exception_message(self, exception=e))
-
     def assets_dropdown(self, params):
         try:
             queryset = AssetTypeModel.objects.all()
@@ -156,17 +140,39 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def renew_asset_request(self, params):
         try:
-            print("Hello World")  # work In progress
-
+            request_id_params = params.data['asset_request_id']
+            expected_return_date_params = params.data['expected_return_date']
+            reason_for_renewal_params = params.data['reason_for_renewal']
+            queryset = AssetRequestModel.objects.filter(asset_request_id=request_id_params, is_deleted=False).update(
+                expected_return_date=expected_return_date_params,
+                reason_for_renewal=reason_for_renewal_params,
+                updated_on=timezone.now()
+            )
+            return Response(Util.get_created_message(self, message=RUS))
         except Exception as e:
             print(str(e))
+            service_logger.error(str(e))
+            return Response(Util.get_exception_message(self, exception=EX))
 
     def return_asset(self, params):
         try:
-            print("Hello World")  # Work in Progress
-
+            return_date_params = params.data['return_date']
+            assets_condition_params = params.data['assets_condition']
+            return_notes_params = params.data['return_notes']
+            acknowledge_flag_params = params.data['acknowledge_flag']
+            asset_request_params = params.data['asset_request']
+            queryset = ReturnAssetsModel.objects.create(
+                return_date=return_date_params,
+                assets_condition=assets_condition_params,
+                return_notes=return_notes_params,
+                acknowledge_flag=acknowledge_flag_params,
+                asset_request_id=asset_request_params
+            )
+            queryset.save()
+            return Response(Util.get_created_message(self, message=RCS))
         except Exception as e:
             print(str(e))
+            return Response(Util.get_exception_message(self, exception=e))
 
     # ==================== SERVICE METHODS END ==================
 
