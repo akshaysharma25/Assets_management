@@ -106,13 +106,32 @@ class AssetServices(ViewSet, ModelViewSet):
             service_logger.error(str(e))
             return Response(Util.get_exception_message(self, exception=e))
 
-    def filter_api(self, params):
+    def filter_api(self, request):
         try:
-            pass
 
+            # Params
+            asset_type = request.query_params.get('asset_type')
+            asset_name = request.query_params.get('asset_name')
+            request_date = request.query_params.get('request_date')
+            issued_date = request.query_params.get('issued_date')
+            due_date = request.query_params.get('due_date')
+
+            queryset = AssetRequestModel.objects.filter(is_deleted=False)
+            if asset_type:
+                queryset = queryset.filter(Q(asset_type__icontains=asset_type))
+            if asset_name:
+                queryset = queryset.filter(Q(asset_type_name__icontains=asset_name))
+            if request_date:
+                queryset = queryset.filter(Q(request_date=request_date))
+            if issued_date:
+                queryset = queryset.filter(Q(created_on=issued_date))
+            if due_date:
+                queryset = queryset.filter(Q(expected_return_date=due_date))
+            serializer = AssetRequestSerializer(queryset, many=True).data
+            return Response(Util.get_fetch_message(self, message=RFS, data=serializer))
         except Exception as e:
             print(str(e))
-            pass
+            return Response(Util.get_exception_message(self, exception=e))
 
     def search_api(self, params):
         try:
