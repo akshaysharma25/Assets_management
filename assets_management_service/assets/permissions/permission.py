@@ -14,7 +14,7 @@ class PermissionChecker(BasePermission):
                 decoded_token = token_validator(token=auth_header)
                 role = decoded_token['role']
                 username = decoded_token['name']
-                tenant_id = decoded_token['tenantid']
+                # tenant_id = decoded_token['tenantid']
                 return True
             except jwt.InvalidSignatureError as e:
                 service_logger.error(e)

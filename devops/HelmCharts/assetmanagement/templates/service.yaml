@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{  "assetmanagement"  }}
+spec:
+  type: {{ .Values.assetmanagement.service.type }}
+  ports:
+    - port: {{ .Values.assetmanagement.service.port }}
+      targetPort: {{ .Values.assetmanagement.service.port }}
+  selector:
+    {{- include "assetmanagement.selectorLabels" . | nindent 4 }}
