@@ -69,8 +69,8 @@ class Util:
     def get_updated_message(self, message):
         return {"message": message, "status": 'UPDATED', "status_code": status.HTTP_204_NO_CONTENT}
 
-    def get_deleted_message(self, message, data):
-        return {"message": message, "status": 'DELETED', "status_code": status.HTTP_204_NO_CONTENT, "data": data}
+    def get_deleted_message(self, message):
+        return {"message": message, "status": 'DELETED', "status_code": status.HTTP_204_NO_CONTENT}
 
     def get_no_record_message(self, message):
         return {"message": message, "status": 'OK',"status_code": status.HTTP_204_NO_CONTENT}

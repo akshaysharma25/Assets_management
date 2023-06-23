@@ -74,12 +74,12 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def delete_asset_request(self, params):
         try:
-            request_id = params.query_params.get['request_id']
+            request_id = params.query_params.get('request_id')
             queryset = AssetRequestModel.objects.filter(asset_request_id=request_id).update(
                 deleted_on=timezone.now(),
                 is_deleted=1,
             )
-            return Response(Util.get_deleted_message(self, message=RDS, data=queryset))
+            return Response(Util.get_deleted_message(self, message=RDS))
         except Exception as e:
             print(str(e))
             service_logger.error(str(e))
