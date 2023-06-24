@@ -17,5 +17,6 @@ urlpatterns = [
     path('assets/assets_dropdown', AssetServices.as_view({'get': 'assets_dropdown'}), name="assets_dropdown"),
     path('assets/renew_asset_request', AssetServices.as_view({'post': 'renew_asset_request'}), name="renew_asset_request"),
     path('assets/return_asset', AssetServices.as_view({'post': 'return_asset'}), name="return_asset"),
+    path('assets/update_asset_request_status', AssetServices.as_view({'post': 'update_asset_request_status'}), name="update_asset_request_status"),
 
 ]

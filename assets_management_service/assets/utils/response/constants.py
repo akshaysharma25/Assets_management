@@ -1,5 +1,7 @@
 RCS = "Request Created Successfully"
 ASS = "AssetType Created Successfully"
+RSUS = "Request Status Updated Successfully"
+
 
 EX = "Exception"
 RNF = "Record Not Found"

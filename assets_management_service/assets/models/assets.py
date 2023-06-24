@@ -1,10 +1,17 @@
 from django.db import models
-
 from assets.models.base import BaseModel
 
 DELIVERY_TYPE = (
-    ("1", "Self Pick Up"),
-    ("2", "Delivery Address"),
+    ("SELF_PICKUP", "Self_Pick_Up"),
+    ("DELIVERY_ADDRESS", "Delivery_Address"),
+)
+
+ASSET_REQUEST_STATUS = (
+    ("COMPLETED", "Completed"),
+    ("IN_PROGRESS", "In_Progress"),
+    ("RETURNED_INITIATED", "Return_Initiated"),
+    ("WAITING_FOR_APPROVAL", "Waiting_For_Approval"),
+    ("WAITING_FOR_RENEWAL_APPROVAL", "Waiting_For_Renewal_Approval"),
 )
 
 
@@ -17,7 +24,9 @@ class AssetRequestModel(BaseModel):
     expected_return_date = models.DateField(null=True, blank=False)
     quantity = models.IntegerField(blank=False, null=True)
     additional_notes = models.CharField(max_length=255, blank=False)
-    delivery_type = models.CharField(choices=DELIVERY_TYPE, max_length=45)
+    delivery_type = models.CharField(default='', choices=DELIVERY_TYPE, max_length=45)
     approver_name = models.CharField(max_length=255, blank=False)
-    issued_on = models.DateTimeField(default='00:00:00.000000', null=True, blank=False)
-    reason_for_renewal = models.CharField(max_length=255,null=True,blank=False)
+    issued_on = models.DateTimeField(null=True, blank=False)
+    reason_for_renewal = models.CharField(max_length=255, null=True, blank=False)
+    asset_request_status = models.CharField(default='In_Progress', choices=ASSET_REQUEST_STATUS, max_length=45)
+
