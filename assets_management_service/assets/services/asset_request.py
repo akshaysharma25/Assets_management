@@ -29,7 +29,7 @@ class AssetServices(ViewSet, ModelViewSet):
     def create_asset_request(self, params):
         try:
             # Generate custom asset_request_id
-            asset_request_id = "RQ_" + str(random.randint(111, 995))
+            asset_request_id = "RQ_" + str(random.randint(1000, 5000))
 
             queryset = AssetRequestModel.objects.create(
                 asset_request_id=asset_request_id,
@@ -74,11 +74,10 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def delete_asset_request(self, params):
         try:
-            request_id = params.query_params.get('request_id')
-            queryset = AssetRequestModel.objects.filter(asset_request_id=request_id).update(
+            asset_request_id = params.query_params.get('asset_request_id')
+            queryset = AssetRequestModel.objects.filter(asset_request_id=asset_request_id).update(
                 deleted_on=timezone.now(),
-                is_deleted=1,
-            )
+                is_deleted=True)
             return Response(Util.get_deleted_message(self, message=RDS))
         except Exception as e:
             print(str(e))
@@ -97,10 +96,12 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def get_asset_by_request_id(self, params):
         try:
-            request_id_params = params.query_params.get('request_id')
-            queryset = AssetRequestModel.objects.filter(asset_request_id=request_id_params, is_deleted=False)
-            serializer = AssetRequestSerializer(queryset, many=True).data
-            return Response(Util.get_fetch_message(self, message=RFS, data=serializer))
+            asset_request_id = params.query_params.get('asset_request_id')
+            queryset = AssetRequestModel.objects.filter(asset_request_id=asset_request_id, is_deleted=False)
+            if queryset:
+                serializer = AssetRequestSerializer(queryset, many=True).data
+                return Response(Util.get_fetch_message(self, message=RFS, data=serializer))
+            return Response(Util.get_no_record_message(self, message=RNF))
         except Exception as e:
             print(str(e))
             service_logger.error(str(e))
@@ -135,7 +136,7 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def search_api(self, params):
         try:
-            search_string = params.data['SearchString']
+            search_string = params.query_params.get('SearchString')
             queryset = AssetRequestModel.objects.filter(
                 Q(asset_request_title__icontains=search_string) |
                 Q(asset_type__icontains=search_string) |
@@ -170,14 +171,10 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def create_asset_name(self, params):
         try:
-            asset_type_id_params = params.data['asset_type_id']
-            asset_name_params = params.data['asset_name']
-            description_params = params.data['description']
             queryset = AssetNameModel.objects.create(
-                asset_type_id=asset_type_id_params,
-                asset_name=asset_name_params,
-                description=description_params
-            )
+                asset_type_id=params.data['asset_type_id'],
+                asset_name=params.data['asset_name'],
+                description=params.data['description'])
             queryset.save()
             return Response(Util.get_created_message(self, message=ASS))
         except Exception as e:
@@ -187,15 +184,17 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def renew_asset_request(self, params):
         try:
-            request_id_params = params.data['asset_request_id']
-            expected_return_date_params = params.data['expected_return_date']
-            reason_for_renewal_params = params.data['reason_for_renewal']
-            queryset = AssetRequestModel.objects.filter(asset_request_id=request_id_params, is_deleted=False).update(
-                expected_return_date=expected_return_date_params,
-                reason_for_renewal=reason_for_renewal_params,
-                updated_on=timezone.now()
-            )
-            return Response(Util.get_created_message(self, message=RUS))
+            # Check Whether that assert is present in table:
+            asset_request = AssetRequestModel.objects.filter(asset_request_id=params.data['asset_request_id'], is_deleted=False)
+            if asset_request:
+                queryset = AssetRequestModel.objects.filter(
+                    asset_request_id=params.data['asset_request_id'], is_deleted=False).update(
+                    expected_return_date=params.data['expected_return_date'],
+                    reason_for_renewal=params.data['reason_for_renewal'],
+                    asset_request_status=params.data['asset_request_status'],
+                    updated_on=timezone.now())
+                return Response(Util.get_created_message(self, message=RUS))
+            return Response(Util.get_no_record_message(self, message=RNF))
         except Exception as e:
             print(str(e))
             service_logger.error(str(e))
@@ -203,20 +202,38 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def return_asset(self, params):
         try:
-            return_date_params = params.data['return_date']
-            assets_condition_params = params.data['assets_condition']
-            return_notes_params = params.data['return_notes']
-            acknowledge_flag_params = params.data['acknowledge_flag']
-            asset_request_params = params.data['asset_request']
-            queryset = ReturnAssetsModel.objects.create(
-                return_date=return_date_params,
-                assets_condition=assets_condition_params,
-                return_notes=return_notes_params,
-                acknowledge_flag=acknowledge_flag_params,
-                asset_request_id=asset_request_params
-            )
-            queryset.save()
-            return Response(Util.get_created_message(self, message=RCS))
+            # Check Whether that assert is present in table:
+            asset_request = AssetRequestModel.objects.filter(id=params.data['asset_request_id'], is_deleted=False)
+            if asset_request:
+                return_asset = ReturnAssetsModel.objects.create(
+                    asset_request_id=params.data['asset_request_id'],
+                    return_date=params.data['return_date'],
+                    assets_condition=params.data['assets_condition'],
+                    return_notes=params.data['return_notes'],
+                    acknowledge_flag=params.data['acknowledge_flag'])
+                return_asset.save()
+                # Updating the status of asset in asset_request table i.e asset_request_status=Return_Initiated
+                asset_request_update = AssetRequestModel.objects.filter(
+                    id=params.data['asset_request_id']).update(
+                    asset_request_status=params.data['asset_request_status'])
+                return Response(Util.get_created_message(self, message=RCS))
+            return Response(Util.get_no_record_message(self, message=RNF))
+        except Exception as e:
+            print(str(e))
+            return Response(Util.get_exception_message(self, exception=e))
+
+    def update_asset_request_status(self, params):
+        try:
+            print("1")
+            query_sets = AssetRequestModel.objects.filter(asset_request_id=params.data['asset_request_id'],is_deleted=False)
+            print("query_sets", query_sets)
+            if query_sets:
+                queryset = AssetRequestModel.objects.filter(
+                    asset_request_id=params.data['asset_request_id'], is_deleted=False).update(
+                    asset_request_status=params.data['asset_request_status'],
+                    updated_on=timezone.now())
+                return Response(Util.get_created_message(self, message=RSUS))
+            return Response(Util.get_no_record_message(self, message=RNF))
         except Exception as e:
             print(str(e))
             return Response(Util.get_exception_message(self, exception=e))
