@@ -16,7 +16,7 @@ from assets.serializers.asset_type_serializer import AssetTypeSerializer
 
 
 class AssetServices(ViewSet, ModelViewSet):
-    permission_classes = [PermissionChecker]
+    # permission_classes = [PermissionChecker]
 
     # ==================== CONSTRUCTOR STARTS ===================
     def __init__(self, *args, **kwargs):
@@ -41,6 +41,7 @@ class AssetServices(ViewSet, ModelViewSet):
                 quantity=params.data['quantity'],
                 additional_notes=params.data['additional_notes'],
                 delivery_type=params.data['delivery_type'],
+                # issued_on=params.data['issued_on'],
             )
             queryset.save()
             return Response(Util.get_created_message_withData(self, message=RCS, data={
@@ -62,6 +63,7 @@ class AssetServices(ViewSet, ModelViewSet):
                 quantity=params.data['quantity'],
                 additional_notes=params.data['additional_notes'],
                 delivery_type=params.data['delivery_type'],
+                issued_on=params.data['issued_on'],
                 updated_on=timezone.now()
             )
             return Response(Util.get_created_message(self, message=RUS))
@@ -84,7 +86,7 @@ class AssetServices(ViewSet, ModelViewSet):
 
     def get_all_assets(self, params):
         try:
-            queryset = AssetRequestModel.objects.all().filter(is_deleted=False)
+            queryset = AssetRequestModel.objects.all().filter(is_deleted=False).order_by('-created_on', '-updated_on')
             serializer = AssetRequestSerializer(queryset, many=True).data
             return Response(Util.get_fetch_message(self, message=RFS, data=serializer))
         except Exception as e:
@@ -229,6 +231,8 @@ class AssetServices(ViewSet, ModelViewSet):
                 queryset = AssetRequestModel.objects.filter(
                     asset_request_id=params.data['asset_request_id'], is_deleted=False).update(
                     asset_request_status=params.data['asset_request_status'],
+                    issued_on=params.data['issued_on'],
+
                     updated_on=timezone.now())
                 return Response(Util.get_created_message(self, message=RSUS))
             return Response(Util.get_no_record_message(self, message=RNF))
