@@ -41,7 +41,6 @@ class AssetServices(ViewSet, ModelViewSet):
                 quantity=params.data['quantity'],
                 additional_notes=params.data['additional_notes'],
                 delivery_type=params.data['delivery_type'],
-                issued_on=params.data['issued_on'],
             )
             queryset.save()
             return Response(Util.get_created_message_withData(self, message=RCS, data={
@@ -63,7 +62,6 @@ class AssetServices(ViewSet, ModelViewSet):
                 quantity=params.data['quantity'],
                 additional_notes=params.data['additional_notes'],
                 delivery_type=params.data['delivery_type'],
-                issued_on=params.data['issued_on'],
                 updated_on=timezone.now()
             )
             return Response(Util.get_created_message(self, message=RUS))
