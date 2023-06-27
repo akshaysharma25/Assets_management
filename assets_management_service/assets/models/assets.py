@@ -25,6 +25,7 @@ class AssetRequestModel(BaseModel):
     quantity = models.IntegerField(blank=False, null=True)
     additional_notes = models.CharField(max_length=255, blank=False)
     delivery_type = models.CharField(default='', choices=DELIVERY_TYPE, max_length=45)
+    delivery_address = models.CharField(max_length=255, blank=False)
     approver_name = models.CharField(max_length=255, blank=False)
     issued_on = models.DateTimeField(null=True, blank=True)
     reason_for_renewal = models.CharField(max_length=255, null=True, blank=False)
