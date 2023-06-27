@@ -75,10 +75,13 @@ class AssetServices(ViewSet, ModelViewSet):
     def delete_asset_request(self, params):
         try:
             asset_request_id = params.query_params.get('asset_request_id')
-            queryset = AssetRequestModel.objects.filter(asset_request_id=asset_request_id).update(
-                deleted_on=timezone.now(),
-                is_deleted=True)
-            return Response(Util.get_deleted_message(self, message=RDS))
+            queryset = AssetRequestModel.objects.filter(asset_request_id=asset_request_id, is_deleted=False)
+            if queryset:
+                delete = AssetRequestModel.objects.filter(asset_request_id=asset_request_id).update(
+                    deleted_on=timezone.now(),
+                    is_deleted=True)
+                return Response(Util.get_deleted_message(self, message=RDS))
+            return Response(Util.get_no_record_message(self, message=RNF))
         except Exception as e:
             print(str(e))
             service_logger.error(str(e))
