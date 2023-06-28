@@ -116,8 +116,8 @@ class AssetServices(ViewSet, ModelViewSet):
             # Params
             asset_type = request.query_params.get('asset_type')
             asset_name = request.query_params.get('asset_name')
-            request_date = request.query_params.get('request_date')
-            issued_date = request.query_params.get('issued_date')
+            required_date = request.query_params.get('required_date')
+            issued_on = request.query_params.get('issued_on')
             due_date = request.query_params.get('due_date')
 
             queryset = AssetRequestModel.objects.filter(is_deleted=False)
@@ -125,10 +125,10 @@ class AssetServices(ViewSet, ModelViewSet):
                 queryset = queryset.filter(Q(asset_type__icontains=asset_type))
             if asset_name:
                 queryset = queryset.filter(Q(asset_type_name__icontains=asset_name))
-            if request_date:
-                queryset = queryset.filter(Q(request_date=request_date))
-            if issued_date:
-                queryset = queryset.filter(Q(created_on=issued_date))
+            if required_date:
+                queryset = queryset.filter(Q(required_date=required_date))
+            if issued_on:
+                queryset = queryset.filter(Q(issued_on=issued_on))
             if due_date:
                 queryset = queryset.filter(Q(expected_return_date=due_date))
             serializer = AssetRequestSerializer(queryset, many=True).data
