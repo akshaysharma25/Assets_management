@@ -20,6 +20,7 @@ class AssetRequestModel(BaseModel):
     asset_request_title = models.CharField(blank=False, null=True)
     asset_type = models.CharField(max_length=45, null=True, blank=False)
     asset_type_name = models.CharField(max_length=45, null=True, blank=False)
+    description = models.CharField(max_length=255, null=True, blank=False)
     required_date = models.DateField(null=True, blank=False)
     expected_return_date = models.DateField(null=True, blank=False)
     quantity = models.IntegerField(blank=False, null=True)
