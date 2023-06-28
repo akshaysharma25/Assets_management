@@ -16,7 +16,7 @@ from assets.serializers.asset_type_serializer import AssetTypeSerializer
 
 
 class AssetServices(ViewSet, ModelViewSet):
-    # permission_classes = [PermissionChecker]
+    permission_classes = [PermissionChecker]
 
     # ==================== CONSTRUCTOR STARTS ===================
     def __init__(self, *args, **kwargs):
