@@ -66,7 +66,7 @@ class AssetServices(ViewSet, ModelViewSet):
                 delivery_address=params.data['delivery_address'],
                 updated_on=timezone.now()
             )
-            return Response(Util.get_created_message(self, message=RUS))
+            return Response(Util.get_created_message_withData(self, message=RUS, data={'asset_request_id': data}))
         except Exception as e:
             print(str(e))
             service_logger.error(str(e))
