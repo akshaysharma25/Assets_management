@@ -30,5 +30,5 @@ class AssetRequestModel(BaseModel):
     approver_name = models.CharField(max_length=255, blank=False)
     issued_on = models.DateTimeField(null=True, blank=True)
     reason_for_renewal = models.CharField(max_length=255, null=True, blank=False)
-    asset_request_status = models.CharField(default='In_Progress', choices=ASSET_REQUEST_STATUS, max_length=45)
+    asset_request_status = models.CharField(default='Waiting_For_Approval', choices=ASSET_REQUEST_STATUS, max_length=45)
 
