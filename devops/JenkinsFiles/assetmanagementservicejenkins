@@ -8,7 +8,7 @@ node(label: 'Jenkins-Nodes')
         {
             try
             {
-                checkout([$class: 'GitSCM', branches: [[name: '$BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'jenkins-master-private-key', url: 'git@github.com:Techademy-B2A/Assets_management.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '$BRANCH_NAME']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'jenkins', url: 'git@github.com:akshaysharma25/Assets_management.git']]])
 
                 sh """
                 #!/bin/bash
@@ -21,86 +21,6 @@ node(label: 'Jenkins-Nodes')
             {
                 echo 'Git checkout failed'
                 throw exc
-            }
-        }
-
-        stage('Build and push rubric service docker image to ACR')
-        {
-            withEnv(["""BUILD_NUMBER=${env.VERSION}"""])
-            {
-                sh '''#!/bin/bash
-                ls -lrt
-                docker login "${ACR_REPO_URL}" -u "${ACR_USER}" -p "${ACR_PASSWORD}"
-                if [ "master" = "$BRANCH_NAME" ];
-                then
-                    echo "$BRANCH_NAME name"
-                    docker build --no-cache . -f devops/AllServiceDockerfiles/Dockerfile -t b2aprodreg.azurecr.io/assetmanagementimage:${BUILD_NUMBER}-prod
-                    docker push b2aprodreg.azurecr.io/assetmanagementimage:${BUILD_NUMBER}-prod
-                elif [ "uat-mvp" = "$BRANCH_NAME" ];
-                then
-                    echo "$BRANCH_NAME name"
-                    docker build --no-cache . -f devops/AllServiceDockerfiles/Dockerfile -t ${ACR_REPO_URL}/assetmanagementimage:${BUILD_NUMBER}-uat
-                    docker push ${ACR_REPO_URL}/assetmanagementimage:${BUILD_NUMBER}-uat
-                elif  [ "release/mvp" = "$BRANCH_NAME" ];
-                then
-                     echo "$BRANCH_NAME name"
-                     docker build --no-cache . -f devops/AllServiceDockerfiles/Dockerfile -t ${ACR_REPO_URL}/assetmanagementimage:${BUILD_NUMBER}-stage
-                     docker push ${ACR_REPO_URL}/assetmanagementimage:${BUILD_NUMBER}-stage
-		elif  [ "develop" = "$BRANCH_NAME" ];
-                then
-                     echo "$BRANCH_NAME name"
-                     docker build --no-cache . -f devops/AllServiceDockerfiles/Dockerfile -t ${ACR_REPO_URL}/assetmanagementimage:${BUILD_NUMBER}-dev
-                     docker push ${ACR_REPO_URL}/assetmanagementimage:${BUILD_NUMBER}-dev
-                else
-                     echo "Branch not specified Build failed"
-                     return
-                fi
-                cat devops/AllServiceDockerfiles/Dockerfile
-                '''
-            }
-        }
-
-        stage('deploy asset management docker image to AKS Cluster')
-       {
-            withEnv(["""BUILD_NUMBER=${env.VERSION}"""])
-            {
-                withKubeConfig([credentialsId: 'K8S', serverUrl: ''])
-                {
-                    sh '''#!/bin/bash
-                    if [ "master" = "$BRANCH_NAME" ];
-                    then
-                        ls -lrt
-                        helm ls -n prod
-                        helm upgrade assetmanagement devops/HelmCharts/assetmanagement/ --values devops/HelmCharts/assetmanagement/prod-values.yml --set assetmanagement.image.repository=b2aprodreg.azurecr.io/assetmanagementimage --set image.tag=${BUILD_NUMBER}-prod -n prod
-                        helm ls -n prod
-                        kubectl get po -n prod
-                    elif [ "uat-mvp" = "$BRANCH_NAME" ];
-                    then
-                        ls -lrt
-                        helm ls -n uat
-                        helm upgrade assetmanagement devops/HelmCharts/assetmanagement/ --values devops/HelmCharts/assetmanagement/uat_values.yml --set assetmanagement.image.repository=${ACR_REPO_URL}/assetmanagementimage --set assetmanagement.image.tag=${BUILD_NUMBER}-uat -n uat
-                        helm ls -n uat
-                        kubectl get po -n uat
-                    elif  [ "release/mvp" = "$BRANCH_NAME" ];
-                    then
-                        ls -lrt
-                        helm ls -n stage
-                        helm upgrade assetmanagement devops/HelmCharts/assetmanagement/ --values devops/HelmCharts/assetmanagement/stage_values.yml --set assetmanagement.image.repository=${ACR_REPO_URL}/assetmanagementimage --set assetmanagement.image.tag=${BUILD_NUMBER}-stage -n stage
-                        helm ls -n stage
-                        kubectl get po -n stage
-		            elif  [ "develop" = "$BRANCH_NAME" ];
-                    then
-                        ls -lrt
-                        helm ls -n dev
-                        helm upgrade assetmanagement devops/HelmCharts/assetmanagement/ --values devops/HelmCharts/assetmanagement/dev_values.yml --set assetmanagement.image.repository=${ACR_REPO_URL}/assetmanagementimage --set assetmanagement.image.tag=${BUILD_NUMBER}-dev -n dev
-                        helm ls -n dev
-                        kubectl get po -n dev
-                    else
-                     echo "Branch not specified Build failed"
-                     return
-                    fi
-                    '''
-                }
             }
         }
 	}
