@@ -1,21 +1,48 @@
 pipeline {
     agent any
 
+    environment {
+        versionTags = "" // Initialize versionTags as an empty string to avoid issues with undefined variables
+    }
+
     stages {
-        stage('Fetch code') {
+        stage('Checkout') {
             steps {
-                git credentialsId: 'your-git-credentials', branch: '$BRANCH_NAME', url: 'https://github.com/akshaysharma25/Assets_management.git'
+                // Use the "GIT_CRED" credentials to access the private repo
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "$BRANCH_NAME"]],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/akshaysharma25/Assets_management.git',
+                        credentialsId: 'GIT_CRED'
+                    ]]
+                ])
             }
         }
 
-        // Add more stages for your build, test, deployment, etc.
+        stage('Read Version Tags') {
+            steps {
+                script {
+                    // Read the last line of file1.txt and store it in the 'versionTags' variable
+                    versionTags = sh(script: "tail -n 1 test", returnStdout: true).trim()
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Use the 'versionTags' variable as needed in the build steps
+                echo "Building version: $versionTags"
+                // Other build steps
+            }
+        }
+
+        // Other stages in your pipeline
         // ...
     }
 
     post {
         always {
-            // Clean up the workspace directory after the pipeline completes
-            cleanWs()
+            cleanWs() // Clean workspace at the end, regardless of pipeline status
         }
     }
 }
